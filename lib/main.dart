@@ -56,21 +56,32 @@ class _HomePageState extends State<HomePage> {
     return _userTransaction.where((tx) {
       return tx.date.isAfter(
         DateTime.now().subtract(
-          Duration(days: 7),
+          const Duration(days: 7),
         ),
       );
     }).toList();
   }
 
-  void _addNewTransaction(String title, double amount) {
+  void _addNewTransaction(String title, double amount, DateTime chosenDate) {
     final newTx = Transaction(
-        id: DateTime.now().toString(),
-        title: title,
-        amount: amount,
-        date: DateTime.now());
+      id: DateTime.now().toString(),
+      title: title,
+      amount: amount,
+      date: chosenDate,
+    );
 
     setState(() {
       _userTransaction.add(newTx);
+    });
+  }
+
+  void _deleteTransaction(String id) {
+    setState(() {
+      _userTransaction.removeWhere(
+        (element) {
+          return element.id == id;
+        },
+      );
     });
   }
 
@@ -98,7 +109,12 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           Chart(recentTransactions: _recentTransactions),
-          TransactionList(transactions: _userTransaction),
+          Expanded(
+            child: TransactionList(
+              transactions: _userTransaction,
+              deleteTx: _deleteTransaction,
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
